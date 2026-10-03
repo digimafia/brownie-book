@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { BarChart3, LayoutDashboard, Plus, Store, Wallet } from 'lucide-react';
+import { BarChart3, FileBarChart, LayoutDashboard, Plus, Store, Wallet } from 'lucide-react';
 import { Sheet } from './components/common';
 import { ExpenseForm, PaymentForm, SaleDetail, SaleForm, Settings, SupplierForm } from './components/Forms';
 import { DataProvider } from './data';
 import { Dashboard, AddMenuButtons } from './pages/Dashboard';
 import { Expenses } from './pages/Expenses';
+import { Reports } from './pages/Reports';
 import { Sales } from './pages/Sales';
 import { SupplierDetail } from './pages/SupplierDetail';
 import { Suppliers } from './pages/Suppliers';
@@ -15,6 +16,7 @@ const TABS: Array<{ id: Tab; label: string; Icon: typeof Plus }> = [
   { id: 'suppliers', label: 'Suppliers', Icon: Store },
   { id: 'sales', label: 'Sales', Icon: BarChart3 },
   { id: 'expenses', label: 'Expenses', Icon: Wallet },
+  { id: 'reports', label: 'Reports', Icon: FileBarChart },
 ];
 
 interface Pending {
@@ -74,6 +76,7 @@ function Shell() {
           {tab === 'suppliers' && <Suppliers />}
           {tab === 'sales' && <Sales />}
           {tab === 'expenses' && <Expenses />}
+          {tab === 'reports' && <Reports />}
         </main>
 
         {supplierId !== null && <SupplierDetail id={supplierId} onBack={() => setSupplierId(null)} />}
@@ -87,13 +90,13 @@ function Shell() {
         )}
 
         <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md border-t border-line bg-white/95 backdrop-blur" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <ul className="grid grid-cols-4">
+          <ul className="grid grid-cols-5">
             {TABS.map(({ id, label, Icon }) => {
               const active = tab === id;
               return (
                 <li key={id}>
                   <button onClick={() => setTab(id)} aria-current={active ? 'page' : undefined} className={`flex h-[4.25rem] w-full flex-col items-center justify-center gap-1 text-xs font-medium ${active ? 'text-cocoa' : 'text-muted'}`}>
-                    <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-colors ${active ? 'bg-cocoa-tint' : ''}`}>
+                    <span className={`flex h-8 w-12 items-center justify-center rounded-full transition-colors ${active ? 'bg-cocoa-tint' : ''}`}>
                       <Icon size={22} strokeWidth={active ? 2.4 : 1.9} />
                     </span>
                     {label}

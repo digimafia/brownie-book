@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export type Tab = 'dashboard' | 'suppliers' | 'sales' | 'expenses';
+export type Tab = 'dashboard' | 'suppliers' | 'sales' | 'expenses' | 'reports';
 
 export type Modal =
   | { t: 'addMenu' }

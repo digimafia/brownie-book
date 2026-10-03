@@ -135,3 +135,54 @@ export function weekBuckets(sales: Sale[], expenses: Expense[], today: string): 
     expenses: sum(expenses.filter((e) => e.date.startsWith(mk) && dayOf(e.date) >= from && dayOf(e.date) <= to).map((e) => e.amount)),
   }));
 }
+
+export interface Totals {
+  sales: number;
+  expenses: number;
+  profit: number;
+  received: number;
+  pending: number;
+  pieces: number;
+  boxes: number;
+}
+
+export function totalsOf(sales: SaleView[], expenses: Expense[], piecesPerBox: number): Totals {
+  const total = sum(sales.map((s) => s.total));
+  const exp = sum(expenses.map((e) => e.amount));
+  const pieces = sales.reduce((a, s) => a + s.quantity, 0);
+  return {
+    sales: total,
+    expenses: exp,
+    profit: round2(total - exp),
+    received: sum(sales.map((s) => s.received)),
+    pending: sum(sales.map((s) => s.pending)),
+    pieces,
+    boxes: piecesPerBox > 0 ? round2(pieces / piecesPerBox) : 0,
+  };
+}
+
+export interface ReportRow {
+  key: string;
+  label: string;
+  sales: number;
+  expenses: number;
+  profit: number;
+  boxes: number;
+}
+
+/** Group by month (monthly = true) or by day, newest first */
+export function reportRows(sales: SaleView[], expenses: Expense[], piecesPerBox: number, monthly: boolean): ReportRow[] {
+  const keyOf = (d: string) => (monthly ? d.slice(0, 7) : d);
+  const keys = new Set<string>([...sales.map((s) => keyOf(s.date)), ...expenses.map((e) => keyOf(e.date))]);
+  return [...keys]
+    .sort()
+    .reverse()
+    .map((key) => {
+      const t = totalsOf(
+        sales.filter((s) => keyOf(s.date) === key),
+        expenses.filter((e) => keyOf(e.date) === key),
+        piecesPerBox,
+      );
+      return { key, label: key, sales: t.sales, expenses: t.expenses, profit: t.profit, boxes: t.boxes };
+    });
+}

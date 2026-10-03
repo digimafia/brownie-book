@@ -4,14 +4,15 @@ import { WeeklyChart } from '../components/Chart';
 import { PageHeader, Stat } from '../components/common';
 import { ExpenseRow, SaleRow } from '../components/Rows';
 import { useData } from '../data';
-import { summarize, weekBuckets } from '../lib/calc';
-import { inr, monthLabel, todayStr } from '../lib/format';
+import { summarize, totalsOf, weekBuckets } from '../lib/calc';
+import { fmtBoxes, inr, monthLabel, todayStr } from '../lib/format';
 import { useUI } from '../ui';
 
 export function Dashboard() {
-  const { sales, expenses } = useData();
+  const { sales, expenses, piecesPerBox } = useData();
   const { open, setTab } = useUI();
   const today = todayStr();
+  const all = totalsOf(sales, expenses, piecesPerBox);
   const s = summarize(sales, expenses, today);
   const weeks = weekBuckets(sales, expenses, today);
 
@@ -45,6 +46,19 @@ export function Dashboard() {
             <Stat label="Pending payment" value={inr(s.monthPending)} tone={s.monthPending > 0 ? 'bad' : 'default'} />
           </div>
           {s.olderPending > 0 && <p className="num mt-2 px-1 text-sm text-muted">Plus {inr(s.olderPending)} still unpaid from earlier months.</p>}
+        </section>
+
+        <section>
+          <div className="mb-2 px-1 text-sm font-medium text-muted">All time (till date)</div>
+          <div className="grid grid-cols-2 gap-3">
+            <Stat label="Total sales" value={inr(all.sales)} />
+            <Stat label="Total expenses" value={inr(all.expenses)} />
+            <Stat label="Total profit" value={inr(all.profit)} tone={all.profit < 0 ? 'bad' : 'ok'} />
+            <Stat label="Received" value={inr(all.received)} tone="ok" />
+            <Stat label="Pending payment" value={inr(all.pending)} tone={all.pending > 0 ? 'bad' : 'default'} />
+            <Stat label="Boxes sold" value={piecesPerBox > 1 ? fmtBoxes(all.boxes) : `${all.pieces} pcs`} />
+          </div>
+          {piecesPerBox > 1 && <p className="num mt-2 px-1 text-sm text-muted">{all.pieces} pcs sold in total.</p>}
         </section>
 
         <section className="card px-4 pb-4 pt-4">
